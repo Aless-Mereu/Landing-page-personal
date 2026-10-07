@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alessandro · Backend &amp; Data Engineer</title>
+<meta name="description" content="Backend Developer (Python y Java) con 14 años en planta químico-farmacéutica, cursando el Máster en Ingeniería de Datos. FastAPI, PostgreSQL, Pandas y Docker. Disponible para incorporación inmediata.">
+<meta name="theme-color" content="#0B1017">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%230B1017%22/><text x=%2216%22 y=%2222%22 text-anchor=%22middle%22 font-family=%22monospace%22 font-weight=%22700%22 font-size=%2216%22 fill=%22%23F0B54A%22>a.</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Una columna de lectura, oscura, con el registro de planta (asientos de libro,
+     etapas de un pipeline) como detalle visual propio. Ámbar = acción, verde
+     azulado = datos. Cambia aquí la paleta de toda la página. */
+  :root{
+    color-scheme:dark;
+    --bg:#0B1017; --surface:#111925; --surface-2:#17212F; --line:#243243;
+    --text:#E6ECF2; --text-dim:#93A2B4;
+    --amber:#F0B54A; --teal:#5FB4AE; --ok:#4ADE80;
+    --f-display:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --f-body:'IBM Plex Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    --radius:8px;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;scroll-padding-top:4.5rem;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font:400 1rem/1.6 var(--f-body);-webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  a{color:inherit;text-decoration:none;}
+  img,video,iframe{max-width:100%;}
+  h1,h2,h3{text-wrap:balance;margin:0;overflow-wrap:break-word;}
+  .br-wide{display:none;} @media (min-width:640px){.br-wide{display:inline;}}
+  p{margin:0;}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:4px;}
+
+  .wrap{max-width:66rem;margin:0 auto;padding-inline:1rem;}
+  @media (min-width:640px){.wrap{padding-inline:1.5rem;}}
+  .mono{font-family:var(--f-display);}
+  .dim{color:var(--text-dim);}
+  .amber{color:var(--amber);} .teal{color:var(--teal);}
+  .icon{width:1rem;height:1rem;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* ---------- Piezas comunes ---------- */
+  .pill{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:var(--surface-2);
+    border-radius:6px;padding:.28rem .6rem;font:500 .78rem/1.3 var(--f-display);white-space:nowrap;}
+  .pills{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border-radius:6px;padding:.75rem 1.2rem;
+    font:600 .95rem/1 var(--f-body);transition:filter .15s,border-color .15s,color .15s;border:1px solid transparent;}
+  .btn-primary{background:var(--amber);color:#1A1306;}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-secondary{border-color:var(--line);color:var(--text);}
+  .btn-secondary:hover{border-color:var(--teal);color:var(--teal);}
+  .eyebrow{font:500 .76rem/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--teal);}
+  .h2{font:800 clamp(1.45rem,3.2vw,1.95rem)/1.2 var(--f-display);margin-top:.6rem;}
+  .section{padding-block:4.5rem;border-top:1px solid var(--line);}
+  .section-head{max-width:42rem;}
+  .section-head p{margin-top:.8rem;}
+  .status{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--line);background:var(--surface-2);
+    border-radius:999px;padding:.35rem .8rem;font:500 .8rem/1 var(--f-display);}
+  .dot{width:.55rem;height:.55rem;border-radius:50%;background:var(--ok);}
+  @media (prefers-reduced-motion:no-preference){
+    .dot{animation:pulse 2s infinite;}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.55)}70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+  }
+
+  /* ---------- Navegación ---------- */
+  .nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;border-bottom:1px solid var(--line);
+    background:rgba(11,16,23,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;height:3.5rem;}
+  .nav-links{display:none;gap:1.6rem;font-size:.9rem;}
+  .nav-links a{color:var(--text-dim);} .nav-links a:hover{color:var(--text);}
+  @media (min-width:768px){.nav-links{display:flex;}}
+  .nav .btn{padding:.5rem .85rem;font-size:.85rem;}
+
+  /* ---------- Hero ---------- */
+  .hero{padding-block:3.5rem 4rem;}
+  @media (min-width:640px){.hero{padding-block:5rem;}}
+  .role{font:500 .9rem/1.4 var(--f-display);color:var(--teal);margin-top:1.6rem;}
+  .hero h1{font:800 clamp(2rem,5.6vw,3.35rem)/1.1 var(--f-display);margin-top:.8rem;letter-spacing:-.01em;}
+  .hero .lead{margin-top:1.4rem;max-width:40rem;font-size:1.08rem;line-height:1.7;color:var(--text-dim);}
+  .hero .lead strong{color:var(--text);font-weight:600;}
+  .hero .pills{margin-top:1.8rem;}
+  .ctas{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2.2rem;}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1px;margin-top:3rem;
+    background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .fact{background:var(--surface);padding:1rem 1.1rem;}
+  .fact b{display:block;font:700 1.35rem/1.2 var(--f-display);font-variant-numeric:tabular-nums;}
+  .fact span{font-size:.85rem;color:var(--text-dim);}
+
+  /* ---------- Por qué ---------- */
+  .reasons{display:grid;gap:1rem;margin-top:2.2rem;}
+  @media (min-width:768px){.reasons{grid-template-columns:repeat(3,1fr);}}
+  .reason{border-top:2px solid var(--line);padding-top:1.1rem;min-width:0;}
+  .reason h3{font:700 1.05rem/1.35 var(--f-display);display:flex;gap:.55rem;align-items:center;}
+  .reason p{margin-top:.6rem;font-size:.95rem;color:var(--text-dim);}
+  .reason:nth-child(3){border-top-color:var(--amber);}
+
+  /* ---------- Proyectos ---------- */
+  .projects{display:grid;gap:1.5rem;margin-top:2.5rem;}
+  .project{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.1rem;display:grid;gap:1.5rem;}
+  @media (min-width:640px){.project{padding:1.5rem;}}
+  @media (min-width:960px){.project{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:start;gap:2rem;}}
+  .project > *{min-width:0;}
+  .project-tag{display:inline-flex;align-items:center;gap:.4rem;font:500 .74rem/1 var(--f-display);letter-spacing:.04em;
+    text-transform:uppercase;padding:.35rem .6rem;border-radius:4px;border:1px solid currentColor;}
+  .project h3{font:800 1.4rem/1.25 var(--f-display);margin-top:.9rem;}
+  .project .problem{margin-top:.7rem;color:var(--text-dim);}
+  .project ul{list-style:none;margin:1.1rem 0 0;padding:0;display:grid;gap:.55rem;font-size:.95rem;}
+  .project li{display:flex;gap:.55rem;}
+  .project li .icon{margin-top:.3rem;color:var(--teal);}
+  .project-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem;margin-top:1.3rem;
+    padding-top:1.1rem;border-top:1px solid var(--line);}
+  .private{font:500 .78rem/1.3 var(--f-display);color:var(--text-dim);display:inline-flex;gap:.4rem;align-items:center;}
+
+  /* Asiento del libro: el formato real que genera la aplicación */
+  .ledger{margin-top:1rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);overflow-x:auto;}
+  .ledger-row{display:grid;grid-template-columns:auto 1fr;gap:.2rem .9rem;padding:.75rem .9rem;font:400 .76rem/1.5 var(--f-display);min-width:20rem;}
+  .ledger-row + .ledger-row{border-top:1px dashed var(--line);}
+  .ledger-row dt{color:var(--text-dim);} .ledger-row dd{margin:0;}
+  .ledger-cap{padding:.45rem .9rem;border-bottom:1px solid var(--line);font:500 .7rem/1 var(--f-display);letter-spacing:.06em;
+    text-transform:uppercase;color:var(--text-dim);display:flex;justify-content:space-between;gap:1rem;}
+
+  /* Etapas del pipeline */
+  .pipeline{margin-top:1rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;counter-reset:etapa;}
+  @media (min-width:520px){.pipeline{grid-template-columns:repeat(4,minmax(0,1fr));}}
+  .stage{border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:.65rem .7rem;counter-increment:etapa;}
+  .stage b{display:block;font:700 .8rem/1.2 var(--f-display);color:var(--teal);}
+  .stage b::before{content:counter(etapa) ". ";color:var(--text-dim);font-weight:500;}
+  .stage span{display:block;margin-top:.3rem;font-size:.78rem;line-height:1.4;color:var(--text-dim);}
+
+  /* Vídeo 16:9: se carga solo al pulsar play */
+  .video{position:relative;width:100%;aspect-ratio:16/9;background:#060A10;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  @supports not (aspect-ratio:16/9){.video{height:0;padding-top:56.25%;}}
+  .video iframe,.video video{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+  .video-cover{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;
+    padding:1rem;text-align:center;cursor:pointer;border:0;color:var(--text);width:100%;font:inherit;
+    background:
+      linear-gradient(transparent 95%,rgba(95,180,174,.07) 95%) 0 0/100% 1.5rem,
+      linear-gradient(90deg,transparent 95%,rgba(95,180,174,.07) 95%) 0 0/1.5rem 100%,
+      #070C13;}
+  .video-cover .play{width:3.6rem;height:3.6rem;border-radius:50%;background:var(--amber);color:#1A1306;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+  .video-cover .play .icon{width:1.4rem;height:1.4rem;fill:currentColor;stroke:none;margin-left:.15rem;}
+  .video-cover:hover .play{transform:scale(1.07);}
+  .video-cover .title{font:600 .9rem/1.3 var(--f-display);}
+  .video-cover .sub{font-size:.8rem;color:var(--text-dim);max-width:24rem;}
+  .video-cover[disabled]{cursor:default;}
+  .video-cover[disabled] .play{background:var(--surface-2);color:var(--text-dim);border:1px dashed var(--line);}
+  .video-cover[disabled] .play .icon{fill:none;stroke:currentColor;margin:0;}
+  .video-badge{position:absolute;top:.6rem;left:.6rem;z-index:1;font:500 .7rem/1 var(--f-display);background:rgba(11,16,23,.88);
+    border:1px solid var(--line);border-radius:4px;padding:.3rem .45rem;color:var(--text-dim);pointer-events:none;}
+  .video-note{margin-top:.7rem;font-size:.82rem;color:var(--text-dim);}
+
+  /* ---------- Stack ---------- */
+  .stack{display:grid;gap:1rem;margin-top:2.2rem;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));}
+  .stack-group{border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.2rem;background:var(--surface);}
+  .stack-group h3{font:700 .9rem/1 var(--f-display);display:flex;align-items:center;gap:.5rem;}
+  .stack-group dl{margin:1rem 0 0;display:grid;gap:.55rem;font-size:.92rem;}
+  .stack-group dl div{display:flex;justify-content:space-between;gap:.75rem;}
+  .stack-group dd{margin:0;font:400 .76rem/1.6 var(--f-display);color:var(--text-dim);text-align:right;}
+
+  /* ---------- Trayectoria ---------- */
+  .timeline{list-style:none;margin:2.4rem 0 0;padding:0 0 0 1.4rem;border-left:1px solid var(--line);display:grid;gap:2rem;}
+  .timeline li{position:relative;max-width:44rem;}
+  .timeline li::before{content:"";position:absolute;left:calc(-1.4rem - .5rem);top:.35rem;width:1rem;height:1rem;border-radius:50%;background:var(--teal);}
+  .timeline li.now::before{background:var(--bg);border:2px solid var(--amber);}
+  .timeline li.plant::before{background:var(--amber);}
+  .when{font:500 .76rem/1 var(--f-display);color:var(--text-dim);}
+  .timeline li.now .when{color:var(--amber);}
+  .timeline h3{font:600 1.08rem/1.35 var(--f-body);margin-top:.45rem;}
+  .timeline p{margin-top:.45rem;font-size:.93rem;color:var(--text-dim);}
+
+  /* ---------- Contacto ---------- */
+  .contact{border:1px solid var(--line);border-radius:12px;padding:2rem 1.2rem;text-align:center;
+    background:linear-gradient(180deg,var(--surface),var(--bg));}
+  @media (min-width:640px){.contact{padding:2.75rem 2.5rem;}}
+  .contact .h2{margin-top:1.2rem;}
+  .contact .lead{margin:.8rem auto 0;max-width:34rem;color:var(--text-dim);}
+  .contact-grid{display:grid;gap:.7rem;margin:2rem auto 0;max-width:46rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));}
+  .contact-mail{margin-top:1.4rem;font:500 .85rem/1.4 var(--f-display);color:var(--text-dim);}
+  .contact-mail b{color:var(--text);font-weight:500;user-select:all;}
+  footer{padding-block:2rem;text-align:center;font-size:.8rem;color:var(--text-dim);}
+
+  @media (prefers-reduced-motion:no-preference){
+    .rise{animation:rise .6s ease-out both;}
+    .rise-2{animation-delay:.08s;} .rise-3{animation-delay:.16s;}
+    @keyframes rise{from{transform:translateY(8px)}to{transform:none}}  /* sin opacidad: el texto se lee desde el primer fotograma */
+  }
+</style>
+</head>
+<body>
+
+<!-- Iconos (trazos estilo Lucide), en línea para no depender de ninguna librería -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3l14 9-14 9z"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 11"/><rect width="14" height="12" x="2" y="6" rx="2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></symbol>
+  <symbol id="i-flow" viewBox="0 0 24 24"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1M12 18h1M7 18h1"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6M9 15l3 3 3-3"/></symbol>
+</svg>
+
+<nav class="nav" aria-label="Principal">
+  <div class="wrap">
+    <a href="#top" class="mono" style="font-weight:700;font-size:.92rem">alessandro<span class="amber">.dev</span></a>
+    <div class="nav-links">
+      <a href="#proyectos">Proyectos</a>
+      <a href="#por-que">Por qué yo</a>
+      <a href="#stack">Stack</a>
+      <a href="#trayectoria">Trayectoria</a>
+    </div>
+    <a href="#contacto" class="btn btn-primary">Contactar</a>
+  </div>
+</nav>
+
+<!-- =====================================================================
+     HERO — en 10 segundos: qué es, si está disponible, si encaja y qué hacer
+     ===================================================================== -->
+<header id="top" class="wrap hero">
+  <div class="status rise"><span class="dot"></span> Disponible para incorporación inmediata</div>
+  <p class="role rise rise-2">Backend Developer · Python &amp; Java → Data Engineer</p>
+  <h1 class="rise rise-2">Construyo el software que<br class="br-wide"> una planta <span class="amber">necesita de verdad.</span></h1>
+  <p class="lead rise rise-3">
+    Soy <strong>Alessandro</strong>. Pasé 14 años en producción y calidad en industria químico-farmacéutica; ahora
+    desarrollo <strong>APIs con FastAPI y Spring</strong>, modelo <strong>PostgreSQL</strong> y proceso datos con
+    <strong>Pandas</strong>, todo en Docker. Estoy cursando el <strong>Máster en Ingeniería de Datos</strong>.
+  </p>
+
+  <div class="pills rise rise-3">
+    <span class="pill"><svg class="icon amber"><use href="#i-code"/></svg>Python · FastAPI</span>
+    <span class="pill"><svg class="icon amber"><use href="#i-code"/></svg>Java · Spring Data · JPA</span>
+    <span class="pill"><svg class="icon teal"><use href="#i-db"/></svg>PostgreSQL · SQL</span>
+    <span class="pill"><svg class="icon teal"><use href="#i-flow"/></svg>Pandas · NumPy · ETL</span>
+    <span class="pill"><svg class="icon amber"><use href="#i-wrench"/></svg>Docker · Git · pytest</span>
+  </div>
+
+  <div class="ctas">
+    <!-- 👉 Guarda tu CV junto a este HTML con este nombre, o cambia la ruta -->
+    <a href="cv-alessandro.pdf" download class="btn btn-primary"><svg class="icon"><use href="#i-download"/></svg>Descargar CV</a>
+    <a href="#proyectos" class="btn btn-secondary"><svg class="icon"><use href="#i-video"/></svg>Ver los proyectos en vídeo</a>
+  </div>
+
+  <div class="facts" aria-label="En cifras">
+    <div class="fact"><b>14 años</b><span>en planta químico-farmacéutica</span></div>
+    <div class="fact"><b>100 tests</b><span>en el proyecto principal, con pytest</span></div>
+    <div class="fact"><b>GMP</b><span>software pensado para auditoría</span></div>
+    <div class="fact"><b>Máster</b><span>Ingeniería de Datos, en curso</span></div>
+  </div>
+</header>
+
+<!-- =====================================================================
+     PROYECTOS — dos vídeos explicativos
+     CÓMO AÑADIR CADA VÍDEO: rellena dos atributos en su <div class="video">
+       data-provider="youtube"  data-src="ID"                 (lo que va tras watch?v=)
+       data-provider="loom"     data-src="ID"                 (lo que va tras loom.com/share/)
+       data-provider="mp4"      data-src="videos/demo.mp4"    (ruta relativa a este HTML)
+     y la duración en data-duration. Vacío = "Vídeo próximamente".
+     El vídeo solo se carga al pulsar play: la página abre rápido en móvil.
+     ===================================================================== -->
+<section id="proyectos" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Proyectos</p>
+      <h2 class="h2">Míralos funcionar en dos minutos</h2>
+      <p class="dim">Cada vídeo cuenta el problema, la arquitectura y una decisión técnica concreta. Sin instalar nada.</p>
+    </div>
+
+    <div class="projects">
+
+      <!-- ===== PROYECTO 1 · Libro Diligenciado Digital ===== -->
+      <article class="project" aria-labelledby="p1">
+        <div>
+          <!-- 👉 Pon el ID de tu vídeo y su duración -->
+          <div class="video" data-provider="loom" data-src="" data-duration="1:30" data-title="Libro Diligenciado Digital"></div>
+          <p class="video-note">Qué verás: un movimiento firmado por dos operarios, una corrección que no borra el original y la base de datos rechazando un UPDATE.</p>
+        </div>
+        <div>
+          <span class="project-tag amber"><svg class="icon"><use href="#i-lock"/></svg>Entorno regulado · GMP</span>
+          <h3 id="p1">Libro Diligenciado Digital</h3>
+          <p class="problem">
+            Las plantas farmacéuticas registran las existencias y las transformaciones de cada lote en libros en papel,
+            donde nada impide sacar más de lo que hay, tachar una línea o firmar por otro. Lo sustituí por una aplicación
+            en la que ningún registro se puede alterar.
+          </p>
+          <ul>
+            <li><svg class="icon"><use href="#i-check"/></svg><span>Registros inalterables por diseño: permisos de PostgreSQL y triggers que bloquean cambios incluso al administrador. Cada corrección es un registro nuevo enlazado al original.</span></li>
+            <li><svg class="icon"><use href="#i-check"/></svg><span>Dos operarios firman cada operación con su PIN; queda quién la realiza y quién la verifica, y un registro de accesos.</span></li>
+            <li><svg class="icon"><use href="#i-check"/></svg><span>Stock por lote y ubicación que nunca queda en negativo, aunque varios puestos registren a la vez: bloqueo de filas en orden fijo.</span></li>
+            <li><svg class="icon"><use href="#i-check"/></svg><span>Migración de los libros en papel que detecta sus errores y dice la fila exacta.</span></li>
+          </ul>
+          <div class="ledger" role="figure" aria-label="Ejemplo de asiento del libro">
+            <div class="ledger-cap"><span>Asiento del libro</span><span>inalterable</span></div>
+            <dl class="ledger-row">
+              <dt>MOV-12</dt><dd>03/10/2026 10:30 · Traslado</dd>
+              <dt>Lote</dt><dd>Flor THC · MP-26-0001 · <span class="amber">25 kg</span></dd>
+              <dt>Ruta</dt><dd>Almacén 2 → Almacén 1</dd>
+              <dt>Firmas</dt><dd>Ana García (realiza) · Luis Pérez (verifica)</dd>
+            </dl>
+          </div>
+          <div class="project-foot">
+            <div class="pills">
+              <span class="pill">FastAPI</span><span class="pill">PostgreSQL</span><span class="pill">SQLAlchemy</span>
+              <span class="pill">Alembic</span><span class="pill">Streamlit</span><span class="pill">Docker</span><span class="pill">pytest</span>
+            </div>
+            <!-- 👉 Código privado (proyecto comercial). Si quieres enlazar algo, que sea una demo, no el repositorio. -->
+            <span class="private"><svg class="icon"><use href="#i-lock"/></svg>Código privado · demo bajo petición</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== PROYECTO 2 · ETL de equipos de planta ===== -->
+      <article class="project" aria-labelledby="p2">
+        <div>
+          <!-- 👉 Pon el ID de tu vídeo y su duración -->
+          <div class="video" data-provider="youtube" data-src="" data-duration="2:00" data-title="ETL de equipos de planta"></div>
+          <p class="video-note">Qué verás: una carga con datos sucios, la cuarentena de lo que no pasa la validación y los indicadores resultantes en PostgreSQL.</p>
+        </div>
+        <div>
+          <span class="project-tag teal"><svg class="icon"><use href="#i-factory"/></svg>Data Engineering · Máster</span>
+          <h3 id="p2">ETL de datos de equipos de planta</h3>
+          <!-- 👉 Ajusta problema, etapas y viñetas a lo que haga tu pipeline cuando esté terminado -->
+          <p class="problem">
+            Reactores, secaderos y cámaras frías exportan temperaturas, presiones y alarmas, cada sistema en su formato y
+            sus unidades. Este pipeline los unifica en un modelo analítico para responder qué equipo y qué lote salieron
+            de rango, sin cruzar hojas de cálculo a mano.
+          </p>
+          <div class="pipeline" aria-label="Etapas del pipeline">
+            <div class="stage"><b>Extraer</b><span>Exportaciones CSV y Excel de cada equipo</span></div>
+            <div class="stage"><b>Validar</b><span>Esquema, rangos físicos y huecos de tiempo</span></div>
+            <div class="stage"><b>Transformar</b><span>Unidades, zona horaria y agregados con Pandas</span></div>
+            <div class="stage"><b>Cargar</b><span>Modelo analítico en PostgreSQL</span></div>
+          </div>
+          <ul>
+            <li><svg class="icon"><use href="#i-check"/></svg><span>Cargas incrementales: procesa solo lo nuevo y se puede relanzar sin duplicar datos.</span></li>
+            <li><svg class="icon"><use href="#i-check"/></svg><span>Lo que no pasa la validación queda en cuarentena con su motivo, no se pierde en silencio.</span></li>
+            <li><svg class="icon"><use href="#i-check"/></svg><span>Indicadores por equipo y por lote: tiempo fuera de rango, alarmas y horas de uso.</span></li>
+          </ul>
+          <div class="project-foot">
+            <div class="pills">
+              <span class="pill">Python</span><span class="pill">Pandas</span><span class="pill">NumPy</span>
+              <span class="pill">SQL</span><span class="pill">PostgreSQL</span><span class="pill">Docker</span>
+            </div>
+            <!-- 👉 Cambia por la URL real del repositorio -->
+            <a href="https://github.com/tu-usuario/etl-equipos-planta" target="_blank" rel="noopener" class="pill"><svg class="icon"><use href="#i-github"/></svg>Código</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     POR QUÉ CONTRATARME
+     ===================================================================== -->
+<section id="por-que" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Por qué contratarme</p>
+      <h2 class="h2">Lo que aporto desde el primer sprint</h2>
+    </div>
+    <div class="reasons">
+      <div class="reason">
+        <h3><svg class="icon amber"><use href="#i-code"/></svg>Backend que otros pueden mantener</h3>
+        <p>APIs REST con FastAPI y Spring Data/JPA, reglas de negocio separadas de los endpoints, migraciones versionadas y tests automáticos.</p>
+      </div>
+      <div class="reason">
+        <h3><svg class="icon teal"><use href="#i-db"/></svg>Datos desde el diseño</h3>
+        <p>Modelo las tablas pensando en cómo se van a consultar después, y limpio y agrego con Pandas y SQL. Integridad en la base de datos, no solo en el código.</p>
+      </div>
+      <div class="reason">
+        <h3><svg class="icon amber"><use href="#i-factory"/></svg>Conozco la planta por dentro</h3>
+        <p>14 años en producción y calidad bajo GMP: trazabilidad por lote, auditorías y desviaciones. Entiendo los requisitos sin necesidad de traductor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     STACK — los nombres tal cual aparecen en las ofertas
+     ===================================================================== -->
+<section id="stack" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Tech stack</p>
+      <h2 class="h2">Herramientas con las que trabajo</h2>
+    </div>
+    <div class="stack">
+      <div class="stack-group">
+        <h3><svg class="icon amber"><use href="#i-code"/></svg>Backend</h3>
+        <dl>
+          <div><dt>Python</dt><dd>FastAPI · Pydantic</dd></div>
+          <div><dt>Java</dt><dd>Spring Data · JPA</dd></div>
+          <div><dt>ORM</dt><dd>SQLAlchemy · Hibernate</dd></div>
+          <div><dt>APIs</dt><dd>REST · OpenAPI</dd></div>
+        </dl>
+      </div>
+      <div class="stack-group">
+        <h3><svg class="icon teal"><use href="#i-flow"/></svg>Datos</h3>
+        <dl>
+          <div><dt>Pandas</dt><dd>ETL · limpieza</dd></div>
+          <div><dt>NumPy</dt><dd>cálculo vectorial</dd></div>
+          <div><dt>SQL</dt><dd>agregaciones · ventanas</dd></div>
+          <div><dt>Excel</dt><dd>openpyxl · migraciones</dd></div>
+        </dl>
+      </div>
+      <div class="stack-group">
+        <h3><svg class="icon amber"><use href="#i-db"/></svg>Bases de datos</h3>
+        <dl>
+          <div><dt>PostgreSQL</dt><dd>triggers · permisos</dd></div>
+          <div><dt>MySQL</dt><dd>relacional</dd></div>
+          <div><dt>Modelado</dt><dd>normalización · índices</dd></div>
+          <div><dt>Migraciones</dt><dd>Alembic</dd></div>
+        </dl>
+      </div>
+      <div class="stack-group">
+        <h3><svg class="icon teal"><use href="#i-wrench"/></svg>Herramientas</h3>
+        <dl>
+          <div><dt>Docker</dt><dd>Compose</dd></div>
+          <div><dt>Git</dt><dd>GitHub</dd></div>
+          <div><dt>Testing</dt><dd>pytest · JUnit</dd></div>
+          <div><dt>Interfaz</dt><dd>Streamlit</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     TRAYECTORIA — en orden: de la planta al software y a los datos
+     ===================================================================== -->
+<section id="trayectoria" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Trayectoria</p>
+      <h2 class="h2">De la planta al software, y del software a los datos</h2>
+    </div>
+    <ol class="timeline">
+      <li class="plant">
+        <p class="when">2011 – 2026</p>
+        <h3>Producción y calidad en industria químico-farmacéutica</h3>
+        <p>Unos 14 años en planta bajo GMP: procesos de producción, sistemas de calidad y registros de lote. Es el origen de los problemas que ahora resuelvo con código.</p>
+      </li>
+      <li>
+        <p class="when">Completado</p>
+        <h3>CFGS en Análisis y Control de Calidad</h3>
+        <p>Base técnica de laboratorio sobre el mismo dominio en el que trabajaba.</p>
+      </li>
+      <li>
+        <p class="when">Completado</p>
+        <h3>CFGS en Desarrollo de Aplicaciones Multiplataforma (DAM)</h3>
+        <p>Java y Python, bases de datos relacionales, acceso a datos con ORM y servicios. La base de mi perfil backend.</p>
+      </li>
+      <li class="now">
+        <p class="when">En curso</p>
+        <h3>Máster en Ingeniería de Datos</h3>
+        <p>Pipelines ETL/ELT, modelado analítico y procesamiento de datos. Lo aplico en el proyecto de equipos de planta.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- =====================================================================
+     CONTACTO
+     ===================================================================== -->
+<section id="contacto" class="section">
+  <div class="wrap">
+    <div class="contact">
+      <div class="status"><span class="dot"></span> Disponible ahora</div>
+      <h2 class="h2">¿Buscas un backend con visión de datos que conozca la industria?</h2>
+      <!-- 👉 Cambia el plazo si no puedes cumplirlo -->
+      <p class="lead">Respondo en menos de 24 h. Si encaja, agenda 20 minutos y lo hablamos.</p>
+      <div class="contact-grid">
+        <!-- 👉 Cambia los cuatro enlaces y el email de abajo por los tuyos -->
+        <a href="https://calendly.com/tu-usuario/20min" target="_blank" rel="noopener" class="btn btn-primary"><svg class="icon"><use href="#i-calendar"/></svg>Agendar entrevista</a>
+        <a href="https://www.linkedin.com/in/tu-usuario" target="_blank" rel="noopener" class="btn btn-secondary"><svg class="icon"><use href="#i-linkedin"/></svg>LinkedIn</a>
+        <a href="https://github.com/tu-usuario" target="_blank" rel="noopener" class="btn btn-secondary"><svg class="icon"><use href="#i-github"/></svg>GitHub</a>
+        <a href="mailto:tu@email.com?subject=Oportunidad%20Backend%20%2F%20Data" class="btn btn-secondary"><svg class="icon"><use href="#i-mail"/></svg>Email</a>
+      </div>
+      <p class="contact-mail">o escribe a <b>tu@email.com</b></p>
+      <p style="margin-top:1rem"><a href="cv-alessandro.pdf" download class="dim" style="display:inline-flex;gap:.4rem;align-items:center;font-size:.9rem"><svg class="icon"><use href="#i-file"/></svg>Descargar el CV en PDF</a></p>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">© 2026 Alessandro · Backend Developer → Data Engineer</footer>
+
+<script>
+  /* Reproductor: crea la portada de cada vídeo y carga el iframe o el MP4 solo al pulsar */
+  (function () {
+    function urlEmbebida(proveedor, id) {
+      if (proveedor === 'youtube') return 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0&modestbranding=1';
+      if (proveedor === 'loom') return 'https://www.loom.com/embed/' + encodeURIComponent(id) + '?autoplay=1&hide_owner=true&hide_share=true';
+      return null;
+    }
+    var pistas = { youtube: 'falta el ID de YouTube', loom: 'falta el ID de Loom', mp4: 'falta la ruta del .mp4' };
+
+    document.querySelectorAll('.video').forEach(function (marco) {
+      var proveedor = marco.dataset.provider || 'youtube';
+      var src = (marco.dataset.src || '').trim();
+      var titulo = marco.dataset.title || 'Vídeo demo';
+      var duracion = marco.dataset.duration;
+
+      var portada = document.createElement('button');
+      portada.type = 'button';
+      portada.className = 'video-cover';
+      portada.setAttribute('aria-label', src ? 'Reproducir el vídeo: ' + titulo : titulo + ': vídeo próximamente');
+      portada.innerHTML =
+        '<span class="play"><svg class="icon"><use href="' + (src ? '#i-play' : '#i-video') + '"/></svg></span>' +
+        '<span class="title">' + titulo + '</span>' +
+        '<span class="sub">' + (src ? 'Explicación técnica · ' + (duracion || '1-2 min') : 'Vídeo próximamente (' + pistas[proveedor] + ')') + '</span>';
+      marco.appendChild(portada);
+
+      if (!src) { portada.disabled = true; return; }
+      if (duracion) {
+        var badge = document.createElement('span');
+        badge.className = 'video-badge';
+        badge.textContent = '▶ ' + duracion;
+        marco.appendChild(badge);
+      }
+
+      portada.addEventListener('click', function () {
+        var el;
+        if (proveedor === 'mp4') {
+          el = document.createElement('video');
+          el.src = src; el.controls = true; el.autoplay = true; el.playsInline = true; el.preload = 'metadata';
+        } else {
+          el = document.createElement('iframe');
+          el.src = urlEmbebida(proveedor, src);
+          el.title = titulo;
+          el.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+          el.allowFullscreen = true;
+        }
+        marco.innerHTML = '';
+        marco.appendChild(el);
+        el.focus && el.focus();
+      });
+    });
+  })();
+</script>
+</body>
+</html>
