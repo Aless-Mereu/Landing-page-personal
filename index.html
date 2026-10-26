@@ -296,7 +296,7 @@
       <article class="project" aria-labelledby="p1">
         <div>
           <!-- 👉 Pon el ID de tu vídeo y su duración -->
-          <div class="video" data-provider="mp4" data-src="Libro_diligenciado_web.mp4" data-duration="3:43" data-title="Libro Diligenciado Digital"></div>
+          <div class="video" data-provider="mp4" data-src="Libro_diligenciado_web.mp4" data-duration="3:43" data-title="Libro Diligenciado Digital" data-subtitle="Presentación funcional"></div>
           <p class="video-note">Qué verás: un movimiento firmado por dos operarios, una corrección que no borra el original y un asiento de un producto con correciones.</p>
         </div>
         <div>
@@ -531,6 +531,7 @@
       var src = (marco.dataset.src || '').trim();
       var titulo = marco.dataset.title || 'Vídeo demo';
       var duracion = marco.dataset.duration;
+      var subtitulo = marco.dataset.subtitle || 'Explicación técnica';
 
       var portada = document.createElement('button');
       portada.type = 'button';
@@ -539,7 +540,7 @@
       portada.innerHTML =
         '<span class="play"><svg class="icon"><use href="' + (src ? '#i-play' : '#i-video') + '"/></svg></span>' +
         '<span class="title">' + titulo + '</span>' +
-        '<span class="sub">' + (src ? 'Explicación técnica · ' + (duracion || '3-4 min') : 'Vídeo próximamente (' + pistas[proveedor] + ')') + '</span>';
+        '<span class="sub">' + (src ? subtitulo + ' · ' + (duracion || '3-4 min') : 'Vídeo próximamente (' + pistas[proveedor] + ')') + '</span>';
       marco.appendChild(portada);
 
       if (!src) { portada.disabled = true; return; }
